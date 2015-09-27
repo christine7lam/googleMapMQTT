@@ -5,6 +5,7 @@
     <title>Tyco Fraud Detection</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../src/client/public/css/main.css">
 </head>
 <body>
     <nav class="navbar navbar-inverse">
@@ -14,15 +15,22 @@
             </div>
         </div>
     </nav>
-    <h2>Tyco Fraud Detection UI</h2>
+
     <div class="container">
+        <h2>Tyco Fraud Detection UI</h2>
         <div class="row">
             <div class="col-md-12">
                 <div class="panel panel-default swipe-panel">
                     <div class="panel-heading">
                         <h4>Card Identification Frauds Control Center</h4>
                     </div>
-                    <div class="panel-body">
+                    <div class="panel-body" id="locations">
+                        <div class="btn btn-danger">Reset</div>
+                        <div class="btn btn-danger">Disconnect from MQTT</div>
+                        <br />
+                        <div class="row">
+
+                        </div>
 
                     </div>
                 </div>
@@ -37,10 +45,39 @@
             var socket = io.connect();
             var $msg = $("#msg");
             var $message = $("#message");
+            var $locations = $("#locations .row");
 
-            socket.on('json', function(data) {  alert("sending data: "+data);
-                $msg.append(data);
+            //Data
+            var demoArray = [];
+
+            socket.on('json', function(data) {
+                var demo = JSON.parse(clearString(data));
+                demoArray.push(demo);
+
+                $locations.append("<div class='col-md-6'>" +
+                    "<div class='panel panel-default'>" +
+                        "<div class='panel-heading'>" +
+                        demo.asset.name +
+                        "</div>" +
+                        "<div class='panel-body'>"+ demo.asset.key +
+                        "<br />"+ clearString(data) +
+                        "</div>" +
+                    "</div></div>"
+                );
             });
+
+            /**** FUNCTIONS *****/
+            function clearString(input){
+                var output = input.replace(/(\r\n|\n|\r)/gm,"");
+                output = output.replace(/\s+/g,"");
+                output = output.replace(/\\\//g, "");
+                try {
+                    output = JSON.parse(output);
+                }catch(exception){
+                    MessagingActions.alert('Error while parsing JSON : check json format', 500000);
+                }
+                return output;
+            }
         });
     </script>
 </body>
