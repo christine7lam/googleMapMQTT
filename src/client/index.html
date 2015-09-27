@@ -57,12 +57,14 @@
 
             /**** FUNCTIONS *****/
             function parseEvents(data){
+                var event = JSON.parse(clearString(data.msgString.toString()));
+                isDup = detectDuplicate(eventArray, event, data.topic);
 
             }
             function parseDemo(data){
                 var demo = JSON.parse(clearString(data.msgString.toString()));
                 //demoArray = detectDuplicate(demo);
-                isDup = detectDuplicate(demoArray, demo);
+                isDup = detectDuplicate(demoArray, demo, data.topic);
                 if(isDup) alert("Duplicate: Location "+demo.asset.key+ " has already been added");
                 if(!isDup) {
                     $locations.append("<div class='col-md-6'>" +
@@ -88,19 +90,25 @@
                 }
                 return output;
             }
-            function detectDuplicate(array, newVal) {
+            function detectDuplicate(array, newVal, topic) {
                 var isDup = false;
+                var compareString = null;
+                if(topic === 'demo_discovery')
+                    compareString = newVal.asset.key;
+                if(topic === 'discovery_events')
+                    compareString = newVal.event.assetKey;
+
                 if (array !== null && array.length > 0) {
                     for (i = 0, len = array.length; i < len; ++i)
                     {
-                        if (array[i].key === newVal.asset.key) {
+                        if (array[i].key === compareString) {
                             isDup = true;
                             return isDup;
                         }
                     }
                 }
                 array.push({
-                    key: newVal.asset.key,
+                    key: compareString,
                     value: newVal
                 });
                 return isDup;
