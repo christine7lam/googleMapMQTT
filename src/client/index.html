@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <style>
         .active {box-shadow: 0 1px 10px green;}
+        .danger {box-shadow: 0 1px 10px red;}
     </style>
 </head>
 <body>
@@ -55,6 +56,10 @@
             var demoT = "demo_discovery";
             var eventT = "discovery_events";
 
+            //Date
+            var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+            var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
             socket.on('json', function(data) {
                 if(data.topic === demoT)
                     parseDemo(data);
@@ -65,9 +70,9 @@
             /**** FUNCTIONS *****/
             function parseEvents(data){
                 var event = JSON.parse(clearString(data.msgString.toString()));
-                isDup = detectDuplicate(eventArray, event, data.topic);
+                isDup = detectFraud(eventArray, event);
                 if(!isDup){
-                    $(".panel."+event.event.assetKey+ " ul.event").append(
+                    $(".panel."+event.event.assetKey+ " ul.event").html(
                         "<li>Asset Type: <b>"+event.sourceEvents[0].key+"</b></li>"+
                                 "<li>User ID: <b>"+event.sourceEvents[0].userId+"</b></li>"+
                                 "<li>Date Time: <b>"+event.sourceEvents[0].dateTime+"</b></li>"
@@ -112,7 +117,7 @@
                 if(topic === demoT)
                     compareString = newVal.asset.key;
                 if(topic === eventT)
-                    compareString = newVal.event.assetKey;
+                    compareString = event.sourceEvents[0].userId;
 
                 if (array !== null && array.length > 0) {
                     for (i = 0, len = array.length; i < len; ++i)
@@ -129,6 +134,78 @@
                 });
                 return isDup;
             }
+            function detectFraud(array, newVal) {
+                var isDup = false;
+                var compUser = null;
+                var compKey = null;
+                var dateTime = null;
+                var danger = null;
+
+                    compUser = newVal.sourceEvents[0].userId;
+                    compKey = newVal.sourceEvents[0].sourceKey;
+                    dateTime = newVal.sourceEvents[0].dateTime;
+
+                if (array !== null && array.length > 0) {
+                    for (i = 0, len = array.length; i < len; ++i)
+                    {
+                        if (array[i].key !== compKey && array[i].user === compUser) {
+                            isDup = true;
+                            danger = calInterval(array[i].dateTime, dateTime);
+                            if(danger){
+                                $(".panel."+compKey).removeClass("active");
+                                $(".panel."+compKey).addClass("danger");
+                            }
+                            return isDup;
+                        }else{
+                            array[i] = newVal;
+                        }
+                    }
+                }
+                array.push({
+                    key: compKey,
+                    user: compUser,
+                    dateTime: dateTime,
+                    value: newVal
+                });
+                return isDup;
+            }
+            function calInterval(dateOld, dateNew){
+                var getOldDate = dateOld.split("T");
+                var getNewDate = dateNew.split("T");
+                var sameDay = false;
+                var warning = false;
+
+                var pOldDate = getOldDate[0].split("-");
+                var pNewDate = getNewDate[0].split("-");
+
+                if(getOldDate[0] === getNewDate[0])
+                    sameDay = true;
+
+                if(sameDay){
+                    var millLapsed = getDateMill(pOldDate) - getDateMill(pNewDate);
+                    warning = calTimeLapsed(millLapsed);
+                }
+                if(warning){
+                    alert("WARNING: FRAUD!!! Please investigate");
+                }
+            }
+            function getDateMill(dateArray){
+                var utcTime = "Z";
+                var pubDate = new Date(dateArray[0],parseInt(dateArray[1])-1,dateArray[2]);
+                var pdatemill = Date.parse(days[pubDate.getDay()] + ", " + pubDate.getDate() + " " + months[pubDate.getMonth()] + " " + pubDate.getFullYear() + " " + datetime[1]+' GMT'+utcTime);
+                return pdatemill;
+            }
+            function calTimeLapsed(seconds) {
+                var isFraud = false;
+                var numdays = Math.floor((seconds % 31536000) / 86400);
+                var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
+                var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
+                if(numminutes < 2)
+                    isFraud = true;
+
+                return isFraud;
+            }
+
         });
     </script>
 </body>
