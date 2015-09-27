@@ -49,7 +49,7 @@
             //Data
             var demoArray = [];
 
-            socket.on('json', function(data) {
+            socket.on('json', function(data) {  console.log("UI");
                 var demo = JSON.parse(clearString(data));
                 demoArray.push(demo);
 
