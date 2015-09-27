@@ -48,10 +48,14 @@
             var demoArray = [];
             var eventArray = [];
 
+            //Topics
+            var demoT = "demo_discovery";
+            var eventT = "discovery_events";
+
             socket.on('json', function(data) {
-                if(data.topic === 'demo_discovery')
+                if(data.topic === demoT)
                     parseDemo(data);
-                if(data.topic === 'discovery_events')
+                if(data.topic === eventT)
                     parseEvents(data);
             });
 
@@ -59,6 +63,14 @@
             function parseEvents(data){
                 var event = JSON.parse(clearString(data.msgString.toString()));
                 isDup = detectDuplicate(eventArray, event, data.topic);
+                alert(eventArray.length + " boo: "+isDup);
+                if(!isDup){
+                    $(".panel."+event.event.assetKey+ " ul.event").append(
+                        "<li>Asset Type: <b>"+event.sourceEvents[0].key+"</b></li>"+
+                                "<li>User ID: <b>"+event.sourceEvents[0].userId+"</b></li>"+
+                                "<li>Date Time: <b>"+event.sourceEvents[0].dateTime+"</b></li>"
+                    )
+                }
 
             }
             function parseDemo(data){
@@ -74,6 +86,7 @@
                             "</div>" +
                             "<div class='panel-body'>" + demo.asset.key +
                             "<br />" + clearString(data.msgString.toString()) +
+                            "<ul class='event'></ul>" +
                             "</div>" +
                             "</div></div>"
                     );
@@ -93,9 +106,9 @@
             function detectDuplicate(array, newVal, topic) {
                 var isDup = false;
                 var compareString = null;
-                if(topic === 'demo_discovery')
+                if(topic === demoT)
                     compareString = newVal.asset.key;
-                if(topic === 'discovery_events')
+                if(topic === eventT)
                     compareString = newVal.event.assetKey;
 
                 if (array !== null && array.length > 0) {
