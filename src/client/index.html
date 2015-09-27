@@ -46,7 +46,6 @@
 
             //Data
             var demoArray = [];
-            var isDup = false;
 
             socket.on('json', function(data) {
                 var demo = JSON.parse(clearString(data));
@@ -75,10 +74,10 @@
                 try {
                     output = JSON.parse(output);
                 }catch(exception){
-                    MessagingActions.alert('Error while parsing JSON : check json format', 500000);
+                    alert('Error while parsing JSON : check json format');
                 }
                 return output;
-            }
+            }s
             function detectDuplicate(array, newVal) {
                 var isDup = false;
                 if (array !== null && array.length > 0) {
