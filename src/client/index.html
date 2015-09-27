@@ -47,8 +47,14 @@
             //Data
             var demoArray = [];
 
-            socket.on('json', function(data) { alert(data.topic + " "+data.msgString);
-                var demo = JSON.parse(clearString(data.msgString.toString()));  alert("TESTING" +demo.asset.key);
+            socket.on('json', function(data) {
+                if(data.topic === 'demo_discovery')
+                    parseDemo(data);
+            });
+
+            /**** FUNCTIONS *****/
+            function parseDemo(data){
+                var demo = JSON.parse(clearString(data.msgString.toString()));
                 //demoArray = detectDuplicate(demo);
                 isDup = detectDuplicate(demoArray, demo);
                 if(isDup) alert("Duplicate: Location "+demo.asset.key+ " has already been added");
@@ -64,9 +70,7 @@
                             "</div></div>"
                     );
                 }
-            });
-
-            /**** FUNCTIONS *****/
+            }
             function clearString(input){
                 var output = input.toString().replace(/(\r\n|\n|\r)/gm,"");
                 output = output.replace(/\s+/g,"");
