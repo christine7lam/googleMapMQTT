@@ -5,6 +5,9 @@
     <title>Tyco Fraud Detection</title>
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <style>
+        .active {box-shadow: 0 1px 10px green;}
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-inverse">
@@ -63,13 +66,13 @@
             function parseEvents(data){
                 var event = JSON.parse(clearString(data.msgString.toString()));
                 isDup = detectDuplicate(eventArray, event, data.topic);
-                alert(eventArray.length + " boo: "+isDup);
                 if(!isDup){
                     $(".panel."+event.event.assetKey+ " ul.event").append(
                         "<li>Asset Type: <b>"+event.sourceEvents[0].key+"</b></li>"+
                                 "<li>User ID: <b>"+event.sourceEvents[0].userId+"</b></li>"+
                                 "<li>Date Time: <b>"+event.sourceEvents[0].dateTime+"</b></li>"
                     )
+                    $(".panel."+event.event.assetKey).addClass("active");
                 }
 
             }
