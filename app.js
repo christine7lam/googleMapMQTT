@@ -18,11 +18,11 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/src/client/index.html');
 });
 
-io.sockets.on('connection', function(socket) {
-    client.on('message', function (topic, message) {
-        console.log(message.toString());
-        //client.end();
-       io.sockets.emit('json', JSON.stringify(message.toString()));
-    });
+//io.sockets.on('connection', function(socket) {
+client.on('message', function (topic, message) {
+    //console.log(message.toString());
+    //client.end();
+   io.sockets.emit('json', JSON.stringify(message.toString()));
 });
+//});
 
