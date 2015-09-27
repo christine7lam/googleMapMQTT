@@ -47,8 +47,8 @@
             //Data
             var demoArray = [];
 
-            socket.on('json', function(data) {
-                var demo = JSON.parse(clearString(data));
+            socket.on('json', function(data) { alert(data.topic + " "+data.msgString);
+                var demo = JSON.parse(clearString(data.msgString.toString()));  alert("TESTING" +demo.asset.key);
                 //demoArray = detectDuplicate(demo);
                 isDup = detectDuplicate(demoArray, demo);
                 if(isDup) alert("Duplicate: Location "+demo.asset.key+ " has already been added");
@@ -59,7 +59,7 @@
                             demo.asset.name +
                             "</div>" +
                             "<div class='panel-body'>" + demo.asset.key +
-                            "<br />" + clearString(data) +
+                            "<br />" + clearString(data.msgString.toString()) +
                             "</div>" +
                             "</div></div>"
                     );
@@ -68,7 +68,7 @@
 
             /**** FUNCTIONS *****/
             function clearString(input){
-                var output = input.replace(/(\r\n|\n|\r)/gm,"");
+                var output = input.toString().replace(/(\r\n|\n|\r)/gm,"");
                 output = output.replace(/\s+/g,"");
                 output = output.replace(/\\\//g, "");
                 try {
@@ -77,7 +77,7 @@
                     alert('Error while parsing JSON : check json format');
                 }
                 return output;
-            }s
+            }
             function detectDuplicate(array, newVal) {
                 var isDup = false;
                 if (array !== null && array.length > 0) {
