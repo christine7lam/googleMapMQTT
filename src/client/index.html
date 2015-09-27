@@ -46,13 +46,19 @@
 
             //Data
             var demoArray = [];
+            var eventArray = [];
 
             socket.on('json', function(data) {
                 if(data.topic === 'demo_discovery')
                     parseDemo(data);
+                if(data.topic === 'discovery_events')
+                    parseEvents(data);
             });
 
             /**** FUNCTIONS *****/
+            function parseEvents(data){
+
+            }
             function parseDemo(data){
                 var demo = JSON.parse(clearString(data.msgString.toString()));
                 //demoArray = detectDuplicate(demo);
@@ -60,7 +66,7 @@
                 if(isDup) alert("Duplicate: Location "+demo.asset.key+ " has already been added");
                 if(!isDup) {
                     $locations.append("<div class='col-md-6'>" +
-                            "<div class='panel panel-default'>" +
+                            "<div class='panel panel-default "+demo.asset.key+ "'>" +
                             "<div class='panel-heading'>" +
                             demo.asset.name +
                             "</div>" +
