@@ -22,7 +22,11 @@ app.get('/', function(req, res) {
 client.on('message', function (topic, message) {
     //console.log(message.toString());
     //client.end();
-   io.sockets.emit('json', JSON.stringify(message.toString()));
+    var results = {
+        topic: topic,
+        msgString: JSON.stringify(message.toString())
+    }
+   io.sockets.emit('json', results);
 });
 //});
 
