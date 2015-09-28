@@ -69,11 +69,12 @@
             socket.on('json', function(data) {
                 if(data.topic === demoT)
                     parseDemo(data);
-                if(data.topic === eventT)
-                    if(fraud)
+                if(data.topic === eventT) {
+                    if (fraud)
                         alert("WARNING: Please investigate the previous fraud before proceeding or RESET");
                     else
                         parseEvents(data);
+                }
             });
 
             /**** EVENTS *******/
@@ -83,7 +84,8 @@
                 $(".panel").removeClass("danger");
                 $(".panel").removeClass("active");
                 $(".panel .panel-body ul").html("");
-                fraud, isLoc, isDup = false;
+                fraud = false;
+                isLoc, isDup = false;
             });
 
             /**** FUNCTIONS *****/
