@@ -235,20 +235,21 @@
                                 $(".panel."+compKey).addClass("danger");
                                 $(".panel."+array[i].key).removeClass("active");
                                 $(".panel."+array[i].key).addClass("danger");
-                                //array[i] = newVal;
-                                $(".panel."+compKey+ " ul.event").html(
-                                        "<li>Asset Type: <b>"+compKey+"</b></li>"+
-                                        "<li>User ID: <b>"+compUser+"</b></li>"+
-                                        "<li>Date Time: <b>"+dateTime+"</b></li>"
-                                )
                                 openModal("Danger: WARNING","WARNING: FRAUD!!! Please investigate", "red");
+                                return isDup;
+                            }else{
+                                isDup = false;
+                                fraud = false;
+                                return isDup;
                             }
-                            return isDup;
                         }else{
                             array[i] = newVal;
+                            isDup = false;
+                            fraud = false;
                         }
                     }
                 }
+
                 array.push({
                     key: compKey,
                     user: compUser,
@@ -262,7 +263,7 @@
                 var getOldDate = dateOld.split("T");
                 var getNewDate = dateNew.split("T");
                 var sameDay = false;
-                var warning = false;
+                var timediff = "";
 
                 var pOldDate = getOldDate[0].split("-");
                 var pNewDate = getNewDate[0].split("-");
@@ -271,20 +272,20 @@
                     sameDay = true;
 
                 if(sameDay){
-                    var millLapsed = getDateMill(pOldDate, getOldDate[1]) - getDateMill(pNewDate, getNewDate[1]);
-                    warning = calTimeLapsed(millLapsed);
+                    var millLapsed = (getDateMill(pNewDate, getNewDate[1]) - getDateMill(pOldDate, getOldDate[1])) /1000;
+                    timediff = calTimeLapsed(millLapsed);
+                    if(timediff < 1 || timediff < 0) {
+                        fraud = true;
+                        isDanger = true;
+                    }
                     //alert("MILLLAPSED: "+millLapsed);
-                }
-                if(warning){
-                    //alert("WARNING: FRAUD!!! Please investigate");
-                    isDanger = true;
                 }
                 return isDanger;
             }
             function getDateMill(dateArray, fulltime){
                 var utcTime = "Z";
                 //var fulltime = fulltime.substring(0, fulltime.length-1);
-                var fulltime = fulltime.split(".");
+                var fulltime = fulltime.split(".");  //alert(fulltime[0]);
                 //alert("FULLTIME: "+fulltime);
                 var pubDate = new Date(dateArray[0],parseInt(dateArray[1])-1,dateArray[2]);
                 //alert("PUB: "+Date.parse(pubDate));
@@ -298,10 +299,8 @@
                 var numdays = Math.floor((seconds % 31536000) / 86400);
                 var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
                 var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
-                if(numminutes < 1)
-                    isFraud = true;
-
-                return isFraud;
+                //alert(numminutes);
+                return numminutes;
             }
 
         });
