@@ -139,7 +139,7 @@
                 //demoArray = detectDuplicate(demo);
                 isDup = detectDuplicate(demoArray, demo, data.topic);
                 if(isDup) {
-                    openModal("Duplicate Location", demo.asset.key + "has already been added");
+                    openModal("Duplicate Location", demo.asset.key + "," + demo.asset.name+ " has already been added");
                 }
                 if(!isDup) {
                     $locations.append("<div class='col-md-6'>" +
