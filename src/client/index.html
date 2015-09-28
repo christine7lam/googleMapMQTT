@@ -142,8 +142,10 @@
                 var danger = null;
 
                     compUser = newVal.sourceEvents[0].userId;
-                    compKey = newVal.sourceEvents[0].sourceKey;
+                    compKey = newVal.sourceEvents[0].sourcekey;
                     dateTime = newVal.sourceEvents[0].dateTime;
+
+                //alert(compUser + "key: "+compKey+" date: "+dateTime);
 
                 if (array !== null && array.length > 0) {
                     for (i = 0, len = array.length; i < len; ++i)
@@ -154,6 +156,9 @@
                             if(danger){
                                 $(".panel."+compKey).removeClass("active");
                                 $(".panel."+compKey).addClass("danger");
+                                $(".panel."+array[i].key).removeClass("active");
+                                $(".panel."+array[i].key).addClass("danger");
+
                             }
                             return isDup;
                         }else{
@@ -170,6 +175,7 @@
                 return isDup;
             }
             function calInterval(dateOld, dateNew){
+                var isDanger = false;
                 var getOldDate = dateOld.split("T");
                 var getNewDate = dateNew.split("T");
                 var sameDay = false;
@@ -182,17 +188,26 @@
                     sameDay = true;
 
                 if(sameDay){
-                    var millLapsed = getDateMill(pOldDate) - getDateMill(pNewDate);
+                    var millLapsed = getDateMill(pOldDate, getOldDate[1]) - getDateMill(pNewDate, getNewDate[1]);
                     warning = calTimeLapsed(millLapsed);
+                   // alert("MILLLAPSED: "+millLapsed);
                 }
                 if(warning){
                     alert("WARNING: FRAUD!!! Please investigate");
+                    isDanger = true;
                 }
+                return isDanger;
             }
-            function getDateMill(dateArray){
+            function getDateMill(dateArray, fulltime){
                 var utcTime = "Z";
+                //var fulltime = fulltime.substring(0, fulltime.length-1);
+                var fulltime = fulltime.split(".");
+                //alert("FULLTIME: "+fulltime);
                 var pubDate = new Date(dateArray[0],parseInt(dateArray[1])-1,dateArray[2]);
-                var pdatemill = Date.parse(days[pubDate.getDay()] + ", " + pubDate.getDate() + " " + months[pubDate.getMonth()] + " " + pubDate.getFullYear() + " " + datetime[1]+' GMT'+utcTime);
+                //alert("PUB: "+Date.parse(pubDate));
+
+                var pdatemill = Date.parse(days[pubDate.getDay()] + ", " + pubDate.getDate() + " " + months[pubDate.getMonth()] + " " + pubDate.getFullYear() + " " + fulltime[0]+' GMT');
+                //alert("PDATEMILL: "+pdatemill);
                 return pdatemill;
             }
             function calTimeLapsed(seconds) {
