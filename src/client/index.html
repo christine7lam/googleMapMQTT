@@ -49,6 +49,10 @@
             var $locations = $("#locations .row");
             var $reset = $("#reset");
 
+            //Boo
+            var fraud = false;
+            var isLoc, isDup = false;
+
             //Data
             var demoArray = [];
             var eventArray = [];
@@ -61,31 +65,44 @@
             var days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
             var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+            /******* MAIN ***************/
             socket.on('json', function(data) {
                 if(data.topic === demoT)
                     parseDemo(data);
                 if(data.topic === eventT)
-                    parseEvents(data);
+                    if(fraud)
+                        alert("WARNING: Please investigate the previous fraud before proceeding or RESET");
+                    else
+                        parseEvents(data);
             });
+
             /**** EVENTS *******/
             $reset.on('click', function(){
-                demoArray = [];
+                //demoArray = [];
                 eventArray =[];
-                $locations.html("");
+                $(".panel").removeClass("danger");
+                $(".panel").removeClass("active");
+                $(".panel .panel-body ul").html("");
+                fraud, isLoc, isDup = false;
             });
+
             /**** FUNCTIONS *****/
             function parseEvents(data){
                 var event = JSON.parse(clearString(data.msgString.toString()));
-                isDup = detectFraud(eventArray, event);
-                if(!isDup){
-                    $(".panel."+event.event.assetKey+ " ul.event").html(
-                        "<li>Asset Type: <b>"+event.sourceEvents[0].key+"</b></li>"+
-                                "<li>User ID: <b>"+event.sourceEvents[0].userId+"</b></li>"+
-                                "<li>Date Time: <b>"+event.sourceEvents[0].dateTime+"</b></li>"
-                    )
-                    $(".panel."+event.event.assetKey).addClass("active");
+                isLoc = findLocation(event.sourceEvents[0].sourcekey);
+                if(!isLoc)
+                    alert("There is no such location to swipe your card.  Please add location.");
+                else {
+                    isDup = detectFraud(eventArray, event);
+                    if (!isDup && isLoc) {
+                        $(".panel." + event.event.assetKey + " ul.event").html(
+                                "<li>Asset Type: <b>" + event.sourceEvents[0].key + "</b></li>" +
+                                "<li>User ID: <b>" + event.sourceEvents[0].userId + "</b></li>" +
+                                "<li>Date Time: <b>" + event.sourceEvents[0].dateTime + "</b></li>"
+                        )
+                        $(".panel." + event.event.assetKey).addClass("active");
+                    }
                 }
-
             }
             function parseDemo(data){
                 var demo = JSON.parse(clearString(data.msgString.toString()));
@@ -99,12 +116,22 @@
                             demo.asset.name +
                             "</div>" +
                             "<div class='panel-body'>" + demo.asset.key +
-                            "<br />" + clearString(data.msgString.toString()) +
                             "<ul class='event'></ul>" +
                             "</div>" +
                             "</div></div>"
                     );
                 }
+            }
+            function findLocation(loc){
+                var isLoc = false;
+                for (i = 0, len = demoArray.length; i < len; ++i)
+                {
+                    if(demoArray[i].key === loc) {
+                        isLoc = true;
+                        return isLoc;
+                    }
+                }
+                return isLoc;
             }
             function clearString(input){
                 var output = input.toString().replace(/(\r\n|\n|\r)/gm,"");
@@ -160,11 +187,17 @@
                             isDup = true;
                             danger = calInterval(array[i].dateTime, dateTime);
                             if(danger){
+                                fraud = true;
                                 $(".panel."+compKey).removeClass("active");
                                 $(".panel."+compKey).addClass("danger");
                                 $(".panel."+array[i].key).removeClass("active");
                                 $(".panel."+array[i].key).addClass("danger");
-                                array[i] = newVal;
+                                //array[i] = newVal;
+                                $(".panel."+compKey+ " ul.event").html(
+                                        "<li>Asset Type: <b>"+compKey+"</b></li>"+
+                                        "<li>User ID: <b>"+compUser+"</b></li>"+
+                                        "<li>Date Time: <b>"+dateTime+"</b></li>"
+                                )
                                 alert("WARNING: FRAUD!!! Please investigate");
                             }
                             return isDup;
@@ -197,7 +230,7 @@
                 if(sameDay){
                     var millLapsed = getDateMill(pOldDate, getOldDate[1]) - getDateMill(pNewDate, getNewDate[1]);
                     warning = calTimeLapsed(millLapsed);
-                   // alert("MILLLAPSED: "+millLapsed);
+                    //alert("MILLLAPSED: "+millLapsed);
                 }
                 if(warning){
                     //alert("WARNING: FRAUD!!! Please investigate");
@@ -222,7 +255,7 @@
                 var numdays = Math.floor((seconds % 31536000) / 86400);
                 var numhours = Math.floor(((seconds % 31536000) % 86400) / 3600);
                 var numminutes = Math.floor((((seconds % 31536000) % 86400) % 3600) / 60);
-                if(numminutes < 2)
+                if(numminutes < 1)
                     isFraud = true;
 
                 return isFraud;
